@@ -15,3 +15,25 @@ export const addItemToCart = (cartItems, cartItemToAdd) => {
   }
   return [...cartItems, { ...cartItemToAdd, quantity: 1 }];
 };
+
+export const removeItemFromCart = (cartItems, cartItemToRemove) => {
+  const existing = cartItems.find((item) => item.id === cartItemToRemove.id);
+  if (existing) {
+    const { quantity } = existing;
+
+    if (quantity - 1 === 0) {
+      return cartItems.filter((item) => item.id !== existing.id);
+    } else {
+      return cartItems.map((item) => {
+        if (item.id === existing.id) {
+          return {
+            ...item,
+            quantity: quantity - 1,
+          };
+        }
+        return item;
+      });
+    }
+  }
+  return cartItems;
+};
