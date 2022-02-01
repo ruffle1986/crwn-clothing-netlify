@@ -15,23 +15,16 @@ const CollectionPageWithSpinner = withSpinner(CollectionPage);
 
 class ShopPage extends Component {
   state = { loading: true };
-  unsubscribeFromSnapshop = null;
 
-  componentDidMount() {
+  async componentDidMount() {
     const collectionRef = firestore.collection('collections');
 
-    this.unsubscribeFromSnapshop = collectionRef.onSnapshot(
-      async (snapshot) => {
-        const collectionMap = convertCollectionsSnapshotToMap(snapshot);
-        this.props.updateCollections(collectionMap);
-        this.setState({ loading: false });
-      },
-    );
+    const snapshot = await collectionRef.get();
+    const collectionMap = convertCollectionsSnapshotToMap(snapshot);
+    this.props.updateCollections(collectionMap);
+    this.setState({ loading: false });
   }
 
-  componentWillUnmount() {
-    this.unsubscribeFromSnapshop();
-  }
   render() {
     const { match } = this.props;
     return (
