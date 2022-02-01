@@ -1,28 +1,13 @@
 import { Component } from 'react';
 import { Route } from 'react-router-dom';
-import CollectionOverview from '../../components/collection-overview/collection-overview.component';
-import CollectionPage from '../collection/collection.component';
-import {
-  firestore,
-  convertCollectionsSnapshotToMap,
-} from '../../firebase/firebase.utils';
 import { connect } from 'react-redux';
-import { updateCollections } from '../../redux/shop/shop.actions';
-import withSpinner from '../../components/with-spinner/with-spinner.component';
-
-const CollectionOverviewWithSpinner = withSpinner(CollectionOverview);
-const CollectionPageWithSpinner = withSpinner(CollectionPage);
+import { fetchCollectionsStartAsync } from '../../redux/shop/shop.actions';
+import CollectionOverviewContainer from '../../components/collection-overview/collection-overview.container';
+import CollectionPageContainer from '../collection/collection.container';
 
 class ShopPage extends Component {
-  state = { loading: true };
-
-  async componentDidMount() {
-    const collectionRef = firestore.collection('collections');
-
-    const snapshot = await collectionRef.get();
-    const collectionMap = convertCollectionsSnapshotToMap(snapshot);
-    this.props.updateCollections(collectionMap);
-    this.setState({ loading: false });
+  componentDidMount() {
+    this.props.fetchCollectionsStartAsync();
   }
 
   render() {
@@ -32,28 +17,19 @@ class ShopPage extends Component {
         <Route
           exact
           path={match.path}
-          render={(props) => (
-            <CollectionOverviewWithSpinner
-              isLoading={this.state.loading}
-              {...props}
-            />
-          )}
+          component={CollectionOverviewContainer}
         />
         <Route
           path={`${match.path}/:collectionId`}
-          render={(props) => (
-            <CollectionPageWithSpinner
-              isLoading={this.state.loading}
-              {...props}
-            />
-          )}
+          component={CollectionPageContainer}
         />
       </div>
     );
   }
 }
+
 const mapDispatchToProps = (dispatch) => ({
-  updateCollections: (collectionMap) =>
-    dispatch(updateCollections(collectionMap)),
+  fetchCollectionsStartAsync: () => dispatch(fetchCollectionsStartAsync()),
 });
+
 export default connect(null, mapDispatchToProps)(ShopPage);
